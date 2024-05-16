@@ -1,7 +1,5 @@
 # Лаба №6. gRPC(Windows)
------
 ## Необходимые инструменты
------
 Для реализации этой лабы будет необходимо установить 
 * [docker](https://docs.docker.com/desktop/install/windows-install/). С этим вам может помочь или [этот](https://www.youtube.com/watch?v=ZyBBv1JmnWQ&ab_channel=TheBinaryBits) видос, или любой другой на просторах ютуба.
 * vscode и пара расширений для него(ниже приложу скрин)
@@ -14,7 +12,6 @@
 Мб понадобятся:
 * Docker
 * Dev Containers. 
------
 ## Ставим себе gRPC
 Создаём на компе папку, можно на рабочем столе. Открываем эту папку в vscode и создаём в ней **Dockerfile**.
 Записываем в него следующее:
@@ -41,7 +38,6 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 
 
 ## Ремарки
------
 ### Ремарка №1
 
 
