@@ -11,7 +11,7 @@
 * c/c++ Extension Pack. Как раз для комфортной работы с плюсами. +там сразу докачиваются CMake расширения.
 * vscode-proto3. Чтоб было комфортнее работать с прото файлом.
 
-Мб понадобится:
+Мб понадобятся:
 * Docker
 * Dev Containers. 
 -----
@@ -37,7 +37,7 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 
 Открываем в vscode терминал и вводим `docker build -t .`
 Далее начнётся установка. Она может занять около 15-20 минут.
-![](https://drive.google.com/drive/folders/1wA3oYeyZstWto-JtYQTQVqhII4GGujDs)
+![](https://drive.google.com/file/d/1paEmANhL-X77LTC7iiB20NSpGRCJeH1l/view?usp=sharing)
 
 
 ## Ремарки
