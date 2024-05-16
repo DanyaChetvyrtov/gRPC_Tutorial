@@ -34,7 +34,7 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 
 Открываем в vscode терминал и вводим `docker build -t .`
 Далее начнётся установка, которая может занять около 15-20 минут.
-![Процесс установки](https://drive.google.com/file/d/1paEmANhL-X77LTC7iiB20NSpGRCJeH1l/view?usp=sharing)
+![Процесс установки](https://drive.google.com/uc?export=view&id=1paEmANhL-X77LTC7iiB20NSpGRCJeH1l)
 
 
 ## Ремарки
