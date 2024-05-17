@@ -45,6 +45,8 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 ---
 
 После установки пишем в терминале `docker images`. Если у вас в появившейся таблице будет поле с **mygrpc**, то всё гуд и можно двигаться дальше.
+  
+
 ![Должно быть так](https://drive.google.com/uc?export=view&id=1Mni5R-pJM5R8TsR02aPGoHlALhG7oKI1)
 
 ---
@@ -52,6 +54,16 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 Далее жмём на кнопку в левом нижнем углу. Откроется окно, где нужно будет нажать _Attach to Running Container_.
 ![](https://drive.google.com/uc?export=view&id=10nzekakDi9soY60MLDggxS2o0teuuOhp)
 
+После чего vscode вам предложит выбрать контейнер 
+  
+
+![](https://drive.google.com/uc?export=view&id=1UD6DErRfbnuCXz90GxXpdj1G73gK4hOi)
+  
+После выбора контейнера в редакторе откроется новое окно, возможно сразу в папке root, а возможно в папку нужно будет перейти самому.
+
+![](https://drive.google.com/uc?export=view&id=1yFmXN330cCcIdezdYdIhyBKsRMxKrOjC)
+1. Тут можно прописать путь(/root)
+2. Тут по-идее должны быть какие-то файлы, как на скрине. Если их нет, то мб что-то было сделано не так(но я не уверен, можете перепроверить правильность своих прошлых шагов или попробовать пойти дальше)
 
 ## Ремарки
 ### Ремарка №1
