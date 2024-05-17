@@ -13,7 +13,7 @@
 * Docker
 * Dev Containers. 
 
-![Все расширения](https://drive.google.com/uc?export=view&id=1LtVnlYsT1SfW0VEDPCb-S6e30a2GI4GQl)
+![Все расширения](https://drive.google.com/uc?export=view&id=1LtVnlYsT1SfW0VEDPCb-S6e30a2GI4GQ)
 
 ## Ставим себе gRPC
 Создаём на компе папку, можно на рабочем столе. Открываем эту папку в vscode и создаём в ней **Dockerfile**.
