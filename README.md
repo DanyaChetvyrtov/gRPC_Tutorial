@@ -13,9 +13,9 @@
 * Docker
 * Dev Containers. 
 
-![Все расширения](https://drive.google.com/uc?export=view&id=1LtVnlYsT1SfW0VEDPCb-S6e30a2GI4GQ =500x500)
+![Все расширения](https://drive.google.com/uc?export=view&id=1LtVnlYsT1SfW0VEDPCb-S6e30a2GI4GQ)
 
-## Ставим себе gRPC
+## Ставим gRPC
 Создаём на компе папку, можно на рабочем столе. Открываем эту папку в vscode и создаём в ней **Dockerfile**.
 Записываем в него следующее:
 
@@ -37,9 +37,15 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 
 > _Не забываем сохранять файлы при их изменении_
 
-Открываем в vscode терминал и вводим `docker build -t .`
+Открываем в vscode терминал и вводим `docker build -t mygrpc .`
 Далее начнётся установка, которая может занять около 15-20 минут.
 ![Процесс установки](https://drive.google.com/uc?export=view&id=1paEmANhL-X77LTC7iiB20NSpGRCJeH1l)
+
+После установки пишем в терминале `docker images`. Если у вас в появившейся таблице будет поле с **mygrpc**, то всё гуд и можно двигаться дальше.
+![Должно быть так](https://drive.google.com/uc?export=view&id=1Mni5R-pJM5R8TsR02aPGoHlALhG7oKI1)
+
+Далее жмём на кнопку в левом нижнем углу. Откроется окно, где нужно будет нажать _Attach to Running Container_.
+![](https://drive.google.com/uc?export=view&id=10nzekakDi9soY60MLDggxS2o0teuuOhp)
 
 
 ## Ремарки
