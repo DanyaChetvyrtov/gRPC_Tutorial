@@ -64,8 +64,289 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 ![](https://drive.google.com/uc?export=view&id=1yFmXN330cCcIdezdYdIhyBKsRMxKrOjC)
 1. Тут можно прописать путь(/root)
 2. Тут по-идее должны быть какие-то файлы, как на скрине. Если их нет, то мб что-то было сделано не так(но я не уверен, можете перепроверить правильность своих прошлых шагов или попробовать пойти дальше)
+  
+Далее в root'е создаём папку и открываем открываем её. (В моём случае папка с названием workdir. Полный путь получится /root/workdir)
+  
+---
+Далее создаём следующую структуру папок: 
+  
+![dirs struct](https://drive.google.com/uc?export=view&id=1vyu7AxAFn8NOEFh8FAfLNiUqMKwECM_Y)
+  
+*Ремарка:
+  
+На скрине редактор почему-то говорит об ошибках в файлах, хотя по факту их нет и быть не должно. Помогал поднять эту лабу нескольким ребятам и у всех редактор ни на что не ругался. Подобный казус произошел только при работе над этим "туториалом". Но, при этом, отображение этих ошибок ни на что не влияло и дальше всё прекрасно работало. :/
+  
+---
+Копируем в файлы следующий код:
+  
+CMakeLists.txt
+```
+cmake_minimum_required(VERSION 3.20)
+project(myserver)
 
-## Ремарки
-### Ремарка №1
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+
+add_library(protolib proto/test.proto)
+target_link_libraries(protolib gRPC::grpc++)
+target_include_directories(protolib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+
+protobuf_generate(TARGET protolib LANGUAGE cpp)
+protobuf_generate(TARGET protolib LANGUAGE grpc
+GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
+
+
+add_executable(server src/server.cpp)
+add_executable(client src/client.cpp)
+target_link_libraries(server protolib)
+target_link_libraries(client protolib)
+```
+  
+test.proto
+```
+syntax = "proto3";
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply);
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
+```
+  
+server.cpp
+```
+#include <iostream>
+#include <memory>
+#include <string>
+
+#include <grpcpp/grpcpp.h>
+#include "proto/test.grpc.pb.h"
+#include "proto/test.pb.h"
+
+
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+
+bool isInt(std::string str) {
+
+    for (int i = 0; i < str.length(); i++)
+        if (!isdigit(str[i]))
+            return false;
+
+    return true;
+}
+
+// Сортировка
+std::string shellSort(std::string string_of_nums)
+{
+    int* num_array = new int[string_of_nums.length()];
+    int j, array_index = 0;
+    std::string sub_string;
+
+
+    // ------------------------------------
+    sub_string = string_of_nums[0];
+    for (int i = 0; i < string_of_nums.length() - 1; i++) {
+        j = i + 1;
+
+        while (string_of_nums[j] != ' ') {
+
+            if (j >= string_of_nums.length())
+                break;
+            sub_string += string_of_nums[j];
+            j++;
+        }
+
+        if (isInt(sub_string)) {
+            num_array[array_index] = stoi(sub_string);
+            array_index++;
+        }
+
+        sub_string = "";
+        i = j - 1;
+    }
+    // ----------------------------------------
+
+
+    // ------------------------------------------
+
+    for (int gap = array_index / 2; gap > 0; gap /= 2)
+    {
+        for (int i = gap; i < array_index; i++)
+        {
+            int temp = *(num_array + i);
+
+            int j;
+            for (j = i; j >= gap && *(num_array + (j - gap)) > temp; j -= gap)
+                *(num_array + j) = *(num_array + (j - gap));
+
+            *(num_array + j) = temp;
+        }
+    }
+    // -------------------------------------
+
+
+    std::string sort_result = "";
+
+    for (int i = 0; i < array_index; i++) {
+        sort_result += (std::to_string(num_array[i]) + " ");
+    }
+
+    delete[] num_array;
+
+    return sort_result;
+}
+
+class GreeterServiceImpl final : public Greeter::Service {
+    Status SayHello(ServerContext* context, const HelloRequest* request, HelloReply* reply) override {
+        std::string prefix = "Result: ";
+        reply->set_message(prefix + shellSort(request->name()));
+        return Status::OK;
+    }
+};
+
+void RunServer() {
+    std::string server_address("0.0.0.0:9999");
+    GreeterServiceImpl service;
+
+    ServerBuilder builder;
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.RegisterService(&service);
+
+    std::unique_ptr<Server> server(builder.BuildAndStart());
+    std::cout << "Server listening on " << server_address << std::endl;
+    server->Wait();
+}
+
+int main() {
+    RunServer();
+    return 0;
+}
+```
+  
+client.cpp
+```
+#include <iostream>
+#include <memory>
+#include <string>
+
+#include <grpcpp/grpcpp.h>
+#include "proto/test.grpc.pb.h"
+#include "proto/test.pb.h"
+
+
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+
+bool isInt(std::string str) {
+
+    for (int i = 0; i < str.length(); i++)
+        if (!isdigit(str[i]))
+            return false;
+
+    return true;
+}
+
+// Сортировка
+std::string shellSort(std::string string_of_nums)
+{
+    int* num_array = new int[string_of_nums.length()];
+    int j, array_index = 0;
+    std::string sub_string;
+
+
+    // ------------------------------------
+    sub_string = string_of_nums[0];
+    for (int i = 0; i < string_of_nums.length() - 1; i++) {
+        j = i + 1;
+
+        while (string_of_nums[j] != ' ') {
+
+            if (j >= string_of_nums.length())
+                break;
+            sub_string += string_of_nums[j];
+            j++;
+        }
+
+        if (isInt(sub_string)) {
+            num_array[array_index] = stoi(sub_string);
+            array_index++;
+        }
+
+        sub_string = "";
+        i = j - 1;
+    }
+    // ----------------------------------------
+
+
+    // ------------------------------------------
+
+    for (int gap = array_index / 2; gap > 0; gap /= 2)
+    {
+        for (int i = gap; i < array_index; i++)
+        {
+            int temp = *(num_array + i);
+
+            int j;
+            for (j = i; j >= gap && *(num_array + (j - gap)) > temp; j -= gap)
+                *(num_array + j) = *(num_array + (j - gap));
+
+            *(num_array + j) = temp;
+        }
+    }
+    // -------------------------------------
+
+
+    std::string sort_result = "";
+
+    for (int i = 0; i < array_index; i++) {
+        sort_result += (std::to_string(num_array[i]) + " ");
+    }
+
+    delete[] num_array;
+
+    return sort_result;
+}
+
+class GreeterServiceImpl final : public Greeter::Service {
+    Status SayHello(ServerContext* context, const HelloRequest* request, HelloReply* reply) override {
+        std::string prefix = "Result: ";
+        reply->set_message(prefix + shellSort(request->name()));
+        return Status::OK;
+    }
+};
+
+void RunServer() {
+    std::string server_address("0.0.0.0:9999");
+    GreeterServiceImpl service;
+
+    ServerBuilder builder;
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.RegisterService(&service);
+
+    std::unique_ptr<Server> server(builder.BuildAndStart());
+    std::cout << "Server listening on " << server_address << std::endl;
+    server->Wait();
+}
+
+int main() {
+    RunServer();
+    return 0;
+}
+```
+---
 
