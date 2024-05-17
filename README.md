@@ -72,9 +72,9 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
   
 ![dirs struct](https://drive.google.com/uc?export=view&id=1vyu7AxAFn8NOEFh8FAfLNiUqMKwECM_Y)
   
-*Ремарка:
+_*Ремарка_:
   
-На скрине редактор почему-то говорит об ошибках в файлах, хотя по факту их нет и быть не должно. Помогал поднять эту лабу нескольким ребятам и у всех редактор ни на что не ругался. Подобный казус произошел только при работе над этим "туториалом". Но, при этом, отображение этих ошибок ни на что не влияло и дальше всё прекрасно работало. :/
+На скрине редактор почему-то говорит об ошибках в файлах, хотя по факту их нет и **быть не должно**. Помогал поднять эту лабу нескольким ребятам и у всех редактор ни на что не ругался. Подобный казус произошел только при работе над этим "туториалом". Но, при этом, отображение этих ошибок **ни на что не влияло** и дальше всё прекрасно работало. :/
   
 ---
 Копируем в файлы следующий код:
@@ -246,107 +246,71 @@ client.cpp
 #include "proto/test.grpc.pb.h"
 #include "proto/test.pb.h"
 
-
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
+using grpc::Channel;
+using grpc::ClientContext;
 using grpc::Status;
 
-bool isInt(std::string str) {
+class GreeterClient {
+public:
+    GreeterClient(std::shared_ptr<Channel> channel) : stub_(Greeter::NewStub(channel)) {}
 
-    for (int i = 0; i < str.length(); i++)
-        if (!isdigit(str[i]))
-            return false;
+    std::string SayHello(const std::string& name) {
+        HelloRequest request;
+        request.set_name(name);
+        HelloReply reply;
+        ClientContext context;
 
-    return true;
-}
+        Status status = stub_->SayHello(&context, request, &reply);
 
-// Сортировка
-std::string shellSort(std::string string_of_nums)
-{
-    int* num_array = new int[string_of_nums.length()];
-    int j, array_index = 0;
-    std::string sub_string;
-
-
-    // ------------------------------------
-    sub_string = string_of_nums[0];
-    for (int i = 0; i < string_of_nums.length() - 1; i++) {
-        j = i + 1;
-
-        while (string_of_nums[j] != ' ') {
-
-            if (j >= string_of_nums.length())
-                break;
-            sub_string += string_of_nums[j];
-            j++;
-        }
-
-        if (isInt(sub_string)) {
-            num_array[array_index] = stoi(sub_string);
-            array_index++;
-        }
-
-        sub_string = "";
-        i = j - 1;
-    }
-    // ----------------------------------------
-
-
-    // ------------------------------------------
-
-    for (int gap = array_index / 2; gap > 0; gap /= 2)
-    {
-        for (int i = gap; i < array_index; i++)
-        {
-            int temp = *(num_array + i);
-
-            int j;
-            for (j = i; j >= gap && *(num_array + (j - gap)) > temp; j -= gap)
-                *(num_array + j) = *(num_array + (j - gap));
-
-            *(num_array + j) = temp;
+        if (status.ok()) {
+            return reply.message();
+        } else {
+            return "RPC failed";
         }
     }
-    // -------------------------------------
 
-
-    std::string sort_result = "";
-
-    for (int i = 0; i < array_index; i++) {
-        sort_result += (std::to_string(num_array[i]) + " ");
-    }
-
-    delete[] num_array;
-
-    return sort_result;
-}
-
-class GreeterServiceImpl final : public Greeter::Service {
-    Status SayHello(ServerContext* context, const HelloRequest* request, HelloReply* reply) override {
-        std::string prefix = "Result: ";
-        reply->set_message(prefix + shellSort(request->name()));
-        return Status::OK;
-    }
+private:
+    std::unique_ptr<Greeter::Stub> stub_;
 };
 
-void RunServer() {
-    std::string server_address("0.0.0.0:9999");
-    GreeterServiceImpl service;
-
-    ServerBuilder builder;
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
-
-    std::unique_ptr<Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
-    server->Wait();
-}
-
 int main() {
-    RunServer();
+    std::string server_address("localhost:9999");
+    GreeterClient greeter(grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials()));
+
+    std::string user_string;
+    std::cout << "Enter nums for sort:" << std::endl;
+    getline(std::cin, user_string);
+
+    std::string reply = greeter.SayHello(user_string);
+    std::cout << "Greeter received: \n" << reply << std::endl;
+
     return 0;
 }
 ```
 ---
+Теперь переходим в терминале в папку build:
+`cd build/`
+  
+Далее прописываем:
+`cmake ..`
+  
+и
+`make`
+  
+Если всё гуд и билд прошел успешно, тогда по пути workdir/build/proto у вас появятся cpp файлы.
+  
+![build dir struct](https://drive.google.com/uc?export=view&id=1ZNS92zFmtp1iABg9kupYg6u3lItOQejR)
 
+---
+## Проверка работы  
+В терминале пишем `./server`
+  
+![start server](https://drive.google.com/uc?export=view&id=1rWzj3sbiK-n3LuzBYr-0O0BEWazx1OIb)
+  
+Сервер запущен. Перейдём к клиенту. Создаём второй терминал. Переходим в директорию build и пишем `./client`
+  
+![client server](https://drive.google.com/uc?export=view&id=1d57V0kVp9WevVOfX5eHg1EoSfNtD9rjG)
+  
+Для теста через пробел проставьте несколько случайных чисел и отправьте их на сервер. Если вам вернулись отсортированная последовательность чисел, то поздравляю, лаба сделана. :)
+
+---
