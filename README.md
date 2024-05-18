@@ -52,7 +52,7 @@ RUN mkdir -p /deps/grpc/build && cd /deps/grpc/build && \
 
 ---
 
-Далее жмём на кнопку в левом нижнем углу. Откроется окно, где нужно будет нажать _Attach to Running Container_.
+Далее прописываем в консоли `docker run -it mygrpc` и жмём на кнопку в левом нижнем углу. Откроется окно, где нужно будет нажать _Attach to Running Container_.
   
 
 ![](https://drive.google.com/uc?export=view&id=10nzekakDi9soY60MLDggxS2o0teuuOhp)
